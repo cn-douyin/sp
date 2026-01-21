@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>💎極限⬆代儲 | Diamond Calculator</title>
+    <title>♪ 極限⬆代儲 | 💎 充值試算</title>
     <style>
         /* --- 基礎設定 --- */
         :root {
@@ -205,9 +205,108 @@
                 font-size: 2rem;
             }
         }
+    
+        /* --- 密碼鎖定畫面 --- */
+        #lockScreen {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(15, 17, 21, 0.92);
+            backdrop-filter: blur(10px);
+        }
+        .lock-card {
+            width: 100%;
+            max-width: 420px;
+            background: rgba(30, 34, 40, 0.92);
+            border: 1px solid rgba(255, 255, 255, 0.10);
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+            overflow: hidden;
+            position: relative;
+        }
+        .lock-card::before{
+            content:'';
+            position:absolute;
+            top:0;left:0;right:0;height:3px;
+            background: var(--gold-gradient);
+        }
+        .lock-body{
+            padding: 28px 26px 24px;
+            text-align: center;
+        }
+        .lock-title{
+            font-size: 1.15rem;
+            letter-spacing: 2px;
+            font-weight: 700;
+            margin: 6px 0 10px;
+        }
+        .lock-sub{
+            color: var(--text-gray);
+            font-size: 0.9rem;
+            margin-bottom: 18px;
+            font-weight: 300;
+        }
+        #passwordInput{
+            width: 100%;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 14px 14px;
+            border-radius: 12px;
+            color: white;
+            font-size: 1.1rem;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.3s;
+            text-align: center;
+            letter-spacing: 4px;
+        }
+        #passwordInput:focus{ border-color: var(--gold-primary); }
+
+        .unlock-btn{
+            width: 100%;
+            margin-top: 14px;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 14px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            background: var(--gold-gradient);
+            box-shadow: 0 6px 18px rgba(212, 175, 55, 0.22);
+            transition: transform 0.15s ease;
+        }
+        .unlock-btn:active{ transform: translateY(1px); }
+
+        #lockError{
+            margin-top: 10px;
+            color: var(--danger);
+            display: none;
+            font-size: 0.9rem;
+        }
+
     </style>
 </head>
 <body>
+
+
+<div id="lockScreen" aria-label="Password Gate">
+    <div class="lock-card">
+        <div class="lock-body">
+            <div class="lock-title">聯繫客服取得密碼</div>
+            <div class="lock-sub">請輸入密碼以開啟此頁面</div>
+            <input id="passwordInput" type="password" inputmode="numeric" pattern="[0-9]*" placeholder="輸入密碼" maxlength="12" autocomplete="off">
+            <button class="unlock-btn" id="unlockBtn">解鎖進入</button>
+            <div id="lockError">密碼錯誤，請再試一次</div>
+        </div>
+    </div>
+</div>
+
+
 
     <div class="calculator-card">
         <h1> 💎 陸版抖音♪ | 極限⬆代儲 🚀🚀🚀</h1>
@@ -219,28 +318,67 @@
         </div>
 
         <div class="input-group">
-            <label class="input-label">輸入鑽石數量 (顆)</label>
+            <label class="input-label">輸入鑽石數量 </label>
             <input type="number" id="diamondInput" placeholder="請輸入數量" step="1000" oninput="calculate()">
             <div class="hint">
-                <span id="minReqText">最低起算：3,000 顆</span>
+                <span id="minReqText">最低起充：3,000 鑽</span>
                 <span id="rateText">比值：470 TWD / 1k</span>
             </div>
-            <div class="hint error-msg" id="errorMsg">💎低於最低起充門檻</div>
+            <div class="hint error-msg" id="errorMsg">低於起充門檻</div>
+            <div class="hint error-msg" id="unitErrorMsg">數量需為 1000 的倍數</div>
         </div>
 
         <div class="result-area">
-            <div class="result-label">預估台幣總金額</div>
+            <div class="result-label">預估金額</div>
             <div class="price-display">
-                <span id="priceOutput">0</span> <span class="unit">TWD</span>
+                <span id="priceOutput">0</span> <span class="unit" id="twdUnit">TWD</span>
             </div>
         </div>
 
         <div class="footer">
-            *報價僅供參考，實際交易請以當下確認為準
+            *報價僅供參考，實際交易請以當下確認為準 <br> 
+ <br> 版本：2026 / 01 / 12 
         </div>
     </div>
 
     <script>
+
+        // --- 密碼鎖定 (開啟前需輸入密碼) ---
+        const REQUIRED_PASSWORD = "4931";
+        const lockScreen = document.getElementById('lockScreen');
+        const passwordInput = document.getElementById('passwordInput');
+        const unlockBtn = document.getElementById('unlockBtn');
+        const lockError = document.getElementById('lockError');
+
+        function unlockIfCorrect() {
+            const entered = (passwordInput.value || "").trim();
+            if (entered === REQUIRED_PASSWORD) {
+                lockError.style.display = 'none';
+                lockScreen.style.display = 'none';
+                try { sessionStorage.setItem('unlocked', '1'); } catch (e) {}
+                passwordInput.value = "";
+            } else {
+                lockError.style.display = 'block';
+                passwordInput.select();
+            }
+        }
+
+        // 若同一個分頁已解鎖，重新整理不需再輸入
+        try {
+            if (sessionStorage.getItem('unlocked') === '1') {
+                lockScreen.style.display = 'none';
+            }
+        } catch (e) {}
+
+        unlockBtn.addEventListener('click', unlockIfCorrect);
+        passwordInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') unlockIfCorrect();
+        });
+
+        // 初始聚焦
+        setTimeout(() => passwordInput.focus(), 0);
+
+
         // 設定變數
         let currentMode = 'promo'; // 預設為優惠時段
         const promoRate = 470 / 1000;
@@ -255,6 +393,8 @@
         const minReqText = document.getElementById('minReqText');
         const rateText = document.getElementById('rateText');
         const errorMsg = document.getElementById('errorMsg');
+        const unitErrorMsg = document.getElementById('unitErrorMsg');
+        const twdUnit = document.getElementById('twdUnit');
         const buttons = document.querySelectorAll('.mode-btn');
 
         // 切換模式函數
@@ -265,11 +405,11 @@
             buttons.forEach(btn => btn.classList.remove('active'));
             if (mode === 'promo') {
                 buttons[0].classList.add('active');
-                minReqText.innerText = `最低起算：${promoMin.toLocaleString()} 顆`;
+                minReqText.innerText = `最低起充：${promoMin.toLocaleString()} 鑽`;
                 rateText.innerText = `比值：470 TWD / 1k`;
             } else {
                 buttons[1].classList.add('active');
-                minReqText.innerText = `最低起算：${normalMin.toLocaleString()} 顆`;
+                minReqText.innerText = `最低起充：${normalMin.toLocaleString()} 鑽`;
                 rateText.innerText = `比值：480 TWD / 1k`;
             }
 
@@ -280,12 +420,25 @@
         // 計算函數
         function calculate() {
             const amount = parseFloat(diamondInput.value);
-            
+
             // 如果輸入框是空的
             if (isNaN(amount) || amount <= 0) {
                 priceOutput.innerText = "0";
                 errorMsg.style.display = 'none';
+                unitErrorMsg.style.display = 'none';
+                twdUnit.style.display = '';
                 return;
+            }
+
+            // 限定以 1000 為一個單位（必須是 1000 的倍數）
+            if (amount % 1000 !== 0) {
+                unitErrorMsg.style.display = 'block';
+                errorMsg.style.display = 'none';
+                priceOutput.innerText = "0";
+                twdUnit.style.display = '';
+                return;
+            } else {
+                unitErrorMsg.style.display = 'none';
             }
 
             let price = 0;
@@ -302,10 +455,12 @@
             // 檢查是否符合最低數量
             if (amount < minRequirement) {
                 errorMsg.style.display = 'block';
-                // 雖然不符資格，這裡選擇顯示反灰或維持計算，或者歸零？
-                // 為了體驗，我們先顯示計算結果，但紅字警告依然在
+                priceOutput.innerText = "未達起充門檻";
+                twdUnit.style.display = 'none';
+                return;
             } else {
                 errorMsg.style.display = 'none';
+                twdUnit.style.display = '';
             }
 
             // 格式化金額 (加逗號) 並顯示，取整數
