@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💎極限⬆代儲 | Diamond Calculator</title>
+    <style>
+        /* --- 基礎設定 --- */
+        :root {
+            --bg-color: #0f1115;
+            --card-bg: rgba(30, 34, 40, 0.8);
+            --gold-primary: #d4af37;
+            --gold-gradient: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+            --text-gray: #a0a0a0;
+            --danger: #ff4d4d;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(circle at 50% 10%, #2a2f3a 0%, #0f1115 70%);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* --- 主卡片設計 --- */
+        .calculator-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 金色光澤邊框裝飾 */
+        .calculator-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 3px;
+            background: var(--gold-gradient);
+        }
+
+        h1 {
+            font-weight: 300;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-size: 1.5rem;
+        }
+
+        .subtitle {
+            color: var(--text-gray);
+            font-size: 0.9rem;
+            margin-bottom: 30px;
+            font-weight: 300;
+        }
+
+        /* --- 切換開關 (Switch) --- */
+        .mode-switch {
+            display: flex;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 5px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: transparent;
+            color: var(--text-gray);
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            z-index: 2;
+        }
+
+        .mode-btn.active {
+            color: #1a1a1a;
+            font-weight: bold;
+            background: var(--gold-gradient);
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+        }
+
+        
+        /* --- 模式標題強化 (僅影響「優惠時段/非優惠時段」文字) --- */
+        .mode-title {
+            display: block;
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            line-height: 1.1;
+            margin-bottom: 6px;
+            color: inherit;
+        }
+
+        .mode-btn:not(.active) .mode-title {
+            color: rgba(255, 255, 255, 0.88);
+        }
+
+        .mode-btn.active .mode-title {
+            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35), 0 10px 25px rgba(212, 175, 55, 0.35);
+        }
+/* --- 輸入區塊 --- */
+        .input-group {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        .input-label {
+            display: block;
+            color: var(--gold-primary);
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            color: white;
+            font-size: 1.2rem;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input[type="number"]:focus {
+            border-color: var(--gold-primary);
+        }
+
+        .hint {
+            font-size: 0.8rem;
+            color: var(--text-gray);
+            margin-top: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .error-msg {
+            color: var(--danger);
+            display: none; /* 預設隱藏 */
+        }
+
+        /* --- 結果顯示區 --- */
+        .result-area {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+        }
+
+        .result-label {
+            color: var(--text-gray);
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .price-display {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 10px 0;
+        }
+
+        .unit {
+            font-size: 1rem;
+            color: var(--gold-primary);
+            -webkit-text-fill-color: initial;
+        }
+
+        /* --- 頁尾 --- */
+        .footer {
+            margin-top: 30px;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* RWD 手機適配 */
+        @media (max-width: 480px) {
+            .calculator-card {
+                padding: 25px;
+            }
+            .price-display {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calculator-card">
+        <h1> 💎 陸版抖音♪ | 極限⬆代儲 🚀🚀🚀</h1>
+        <div class="subtitle">  </div>
+
+        <div class="mode-switch">
+            <button class="mode-btn active" onclick="setMode('promo')"><span class="mode-title">優惠時段</span> <br>  13:00 ~ 17:00 <br> 20:00 ~ 23:00 </button>
+            <button class="mode-btn" onclick="setMode('normal')"><span class="mode-title">非優惠時段</span> <br>  17:00 ~ 20:00 <br> 23:00 ~ 13:00 </button>
+        </div>
+
+        <div class="input-group">
+            <label class="input-label">輸入鑽石數量 (顆)</label>
+            <input type="number" id="diamondInput" placeholder="請輸入數量" step="1000" oninput="calculate()">
+            <div class="hint">
+                <span id="minReqText">最低起算：3,000 顆</span>
+                <span id="rateText">比值：470 TWD / 1k</span>
+            </div>
+            <div class="hint error-msg" id="errorMsg">💎低於最低起充門檻</div>
+        </div>
+
+        <div class="result-area">
+            <div class="result-label">預估台幣總金額</div>
+            <div class="price-display">
+                <span id="priceOutput">0</span> <span class="unit">TWD</span>
+            </div>
+        </div>
+
+        <div class="footer">
+            *報價僅供參考，實際交易請以當下確認為準
+        </div>
+    </div>
+
+    <script>
+        // 設定變數
+        let currentMode = 'promo'; // 預設為優惠時段
+        const promoRate = 470 / 1000;
+        const promoMin = 3000;
+        
+        const normalRate = 480 / 1000;
+        const normalMin = 10000;
+
+        // DOM 元素
+        const diamondInput = document.getElementById('diamondInput');
+        const priceOutput = document.getElementById('priceOutput');
+        const minReqText = document.getElementById('minReqText');
+        const rateText = document.getElementById('rateText');
+        const errorMsg = document.getElementById('errorMsg');
+        const buttons = document.querySelectorAll('.mode-btn');
+
+        // 切換模式函數
+        function setMode(mode) {
+            currentMode = mode;
+            
+            // 更新按鈕樣式
+            buttons.forEach(btn => btn.classList.remove('active'));
+            if (mode === 'promo') {
+                buttons[0].classList.add('active');
+                minReqText.innerText = `最低起算：${promoMin.toLocaleString()} 顆`;
+                rateText.innerText = `比值：470 TWD / 1k`;
+            } else {
+                buttons[1].classList.add('active');
+                minReqText.innerText = `最低起算：${normalMin.toLocaleString()} 顆`;
+                rateText.innerText = `比值：480 TWD / 1k`;
+            }
+
+            // 重新計算
+            calculate();
+        }
+
+        // 計算函數
+        function calculate() {
+            const amount = parseFloat(diamondInput.value);
+            
+            // 如果輸入框是空的
+            if (isNaN(amount) || amount <= 0) {
+                priceOutput.innerText = "0";
+                errorMsg.style.display = 'none';
+                return;
+            }
+
+            let price = 0;
+            let minRequirement = 0;
+
+            if (currentMode === 'promo') {
+                minRequirement = promoMin;
+                price = amount * promoRate;
+            } else {
+                minRequirement = normalMin;
+                price = amount * normalRate;
+            }
+
+            // 檢查是否符合最低數量
+            if (amount < minRequirement) {
+                errorMsg.style.display = 'block';
+                // 雖然不符資格，這裡選擇顯示反灰或維持計算，或者歸零？
+                // 為了體驗，我們先顯示計算結果，但紅字警告依然在
+            } else {
+                errorMsg.style.display = 'none';
+            }
+
+            // 格式化金額 (加逗號) 並顯示，取整數
+            priceOutput.innerText = Math.floor(price).toLocaleString();
+        }
+    </script>
+</body>
+</html>
