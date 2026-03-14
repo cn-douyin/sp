@@ -242,94 +242,220 @@
         </div>
     </div>
 
-    <script>
-        // 設定變數
-        let currentMode = 'promo'; // 預設為優惠時段
-        const promoRate = 485 / 1000;
-        const promoMin = 3000;
-        
-        const normalRate = 490 / 1000;
-        const normalMin = 10000;
+ <script>
+    /* ===== 設定變數 ===== */
+    let currentMode = 'promo';
 
-        // DOM 元素
-        const diamondInput = document.getElementById('diamondInput');
-        const priceOutput = document.getElementById('priceOutput');
-        const minReqText = document.getElementById('minReqText');
-        const rateText = document.getElementById('rateText');
-        const errorMsg = document.getElementById('errorMsg');
-        const unitErrorMsg = document.getElementById('unitErrorMsg');
-        const twdUnit = document.getElementById('twdUnit');
-        const buttons = document.querySelectorAll('.mode-btn');
+    const promoRate = 485 / 1000;
+    const promoMin = 3000;
 
-        // 切換模式函數
-        function setMode(mode) {
-            currentMode = mode;
-            
-            // 更新按鈕樣式
-            buttons.forEach(btn => btn.classList.remove('active'));
-            if (mode === 'promo') {
-                buttons[0].classList.add('active');
-                minReqText.innerText = `最低起充：${promoMin.toLocaleString()} 鑽`;
-                rateText.innerText = `比值：485 TWD / 1k`;
-            } else {
-                buttons[1].classList.add('active');
-                minReqText.innerText = `最低起充：${normalMin.toLocaleString()} 鑽`;
-                rateText.innerText = `比值：490 TWD / 1k`;
-            }
+    const normalRate = 490 / 1000;
+    const normalMin = 10000;
 
-            // 重新計算
-            calculate();
+    const diamondInput = document.getElementById('diamondInput');
+    const priceOutput = document.getElementById('priceOutput');
+    const minReqText = document.getElementById('minReqText');
+    const rateText = document.getElementById('rateText');
+    const errorMsg = document.getElementById('errorMsg');
+    const unitErrorMsg = document.getElementById('unitErrorMsg');
+    const twdUnit = document.getElementById('twdUnit');
+    const buttons = document.querySelectorAll('.mode-btn');
+
+    /* ===== 模式切換 ===== */
+    function setMode(mode) {
+        currentMode = mode;
+
+        buttons.forEach(btn => btn.classList.remove('active'));
+
+        if (mode === 'promo') {
+            buttons[0].classList.add('active');
+            minReqText.innerText = `最低起充：${promoMin.toLocaleString()} 鑽`;
+            rateText.innerText = `比值：485 TWD / 1k`;
+        } else {
+            buttons[1].classList.add('active');
+            minReqText.innerText = `最低起充：${normalMin.toLocaleString()} 鑽`;
+            rateText.innerText = `比值：490 TWD / 1k`;
         }
 
-        // 計算函數
-        function calculate() {
-            const amount = parseFloat(diamondInput.value);
+        calculate();
+    }
 
-            // 如果輸入框是空的
-            if (isNaN(amount) || amount <= 0) {
-                priceOutput.innerText = "0";
-                errorMsg.style.display = 'none';
-                unitErrorMsg.style.display = 'none';
-                twdUnit.style.display = '';
-                return;
-            }
+    /* ===== 計算 ===== */
+    function calculate() {
+        const amount = parseFloat(diamondInput.value);
 
-            // 限定以 1000 為一個單位（必須是 1000 的倍數）
-            if (amount % 1000 !== 0) {
-                unitErrorMsg.style.display = 'block';
-                errorMsg.style.display = 'none';
-                priceOutput.innerText = "0";
-                twdUnit.style.display = '';
-                return;
-            } else {
-                unitErrorMsg.style.display = 'none';
-            }
-
-            let price = 0;
-            let minRequirement = 0;
-
-            if (currentMode === 'promo') {
-                minRequirement = promoMin;
-                price = amount * promoRate;
-            } else {
-                minRequirement = normalMin;
-                price = amount * normalRate;
-            }
-
-            // 檢查是否符合最低數量
-            if (amount < minRequirement) {
-                errorMsg.style.display = 'block';
-                priceOutput.innerText = "未達起充門檻";
-                twdUnit.style.display = 'none';
-                return;
-            } else {
-                errorMsg.style.display = 'none';
-                twdUnit.style.display = '';
-            }
-
-            // 格式化金額 (加逗號) 並顯示，取整數
-            priceOutput.innerText = Math.floor(price).toLocaleString();
+        if (isNaN(amount) || amount <= 0) {
+            priceOutput.innerText = "0";
+            errorMsg.style.display = 'none';
+            unitErrorMsg.style.display = 'none';
+            twdUnit.style.display = '';
+            return;
         }
-    </script>
+
+        if (amount % 1000 !== 0) {
+            unitErrorMsg.style.display = 'block';
+            errorMsg.style.display = 'none';
+            priceOutput.innerText = "0";
+            twdUnit.style.display = '';
+            return;
+        } else {
+            unitErrorMsg.style.display = 'none';
+        }
+
+        let price = 0;
+        let minRequirement = 0;
+
+        if (currentMode === 'promo') {
+            minRequirement = promoMin;
+            price = amount * promoRate;
+        } else {
+            minRequirement = normalMin;
+            price = amount * normalRate;
+        }
+
+        if (amount < minRequirement) {
+            errorMsg.style.display = 'block';
+            priceOutput.innerText = "未達起充門檻";
+            twdUnit.style.display = 'none';
+            return;
+        } else {
+            errorMsg.style.display = 'none';
+            twdUnit.style.display = '';
+        }
+
+        priceOutput.innerText = Math.floor(price).toLocaleString();
+    }
+
+    /* ===== 進階防護系統 ===== */
+
+    // 嘗試阻止被 iframe 嵌入
+    try {
+        if (window.top !== window.self) {
+            window.top.location = window.self.location;
+        }
+    } catch (e) {}
+
+    // 建立黑屏遮罩
+    const antiOverlay = document.createElement("div");
+    antiOverlay.id = "antiOverlay";
+    antiOverlay.style.position = "fixed";
+    antiOverlay.style.inset = "0";
+    antiOverlay.style.background = "#000";
+    antiOverlay.style.color = "#fff";
+    antiOverlay.style.zIndex = "999999";
+    antiOverlay.style.display = "none";
+    antiOverlay.style.alignItems = "center";
+    antiOverlay.style.justifyContent = "center";
+    antiOverlay.style.flexDirection = "column";
+    antiOverlay.style.textAlign = "center";
+    antiOverlay.style.padding = "24px";
+    antiOverlay.style.fontSize = "20px";
+    antiOverlay.style.letterSpacing = "2px";
+    antiOverlay.innerHTML = `
+        <div>系統偵測到異常操作</div>
+        <div style="font-size:14px;opacity:.7;margin-top:10px;">請關閉相關工具後重新整理頁面</div>
+    `;
+    document.body.appendChild(antiOverlay);
+
+    function showOverlay(msg) {
+        if (msg) {
+            antiOverlay.innerHTML = `
+                <div>${msg}</div>
+                <div style="font-size:14px;opacity:.7;margin-top:10px;">請關閉相關工具後重新整理頁面</div>
+            `;
+        }
+        antiOverlay.style.display = "flex";
+    }
+
+    function hideOverlay() {
+        antiOverlay.style.display = "none";
+    }
+
+    // 禁止右鍵
+    document.addEventListener("contextmenu", function (e) {
+        e.preventDefault();
+    });
+
+    // 禁止複製 / 剪下 / 貼上 / 拖曳 / 選取
+    ["copy", "cut", "paste", "dragstart", "selectstart"].forEach(evt => {
+        document.addEventListener(evt, function (e) {
+            e.preventDefault();
+        });
+    });
+
+    // 禁止常見快捷鍵
+    document.addEventListener("keydown", function (e) {
+        const key = (e.key || "").toLowerCase();
+
+        // F12
+        if (e.key === "F12") {
+            e.preventDefault();
+            return false;
+        }
+
+        // Ctrl + Shift + I / J / C / K
+        if (e.ctrlKey && e.shiftKey && ["i", "j", "c", "k"].includes(key)) {
+            e.preventDefault();
+            return false;
+        }
+
+        // Ctrl + U / S / P / A / C / X / V
+        if (e.ctrlKey && ["u", "s", "p", "a", "c", "x", "v"].includes(key)) {
+            e.preventDefault();
+            return false;
+        }
+    }, true);
+
+    // 視窗失焦時暫時遮罩
+    window.addEventListener("blur", function () {
+        antiOverlay.dataset.blurMode = "1";
+        antiOverlay.style.display = "flex";
+        antiOverlay.innerHTML = `
+            <div>頁面已暫時保護</div>
+            <div style="font-size:14px;opacity:.7;margin-top:10px;">返回此頁後會自動恢復</div>
+        `;
+    });
+
+    window.addEventListener("focus", function () {
+        if (antiOverlay.dataset.blurMode === "1") {
+            antiOverlay.dataset.blurMode = "";
+            antiOverlay.style.display = "none";
+        }
+    });
+
+    // DevTools 偵測
+    (function () {
+        let devtoolsOpen = false;
+
+        function detectDevtools() {
+            const widthGap = window.outerWidth - window.innerWidth;
+            const heightGap = window.outerHeight - window.innerHeight;
+
+            const widthTriggered = widthGap > 160;
+            const heightTriggered = heightGap > 160;
+
+            const start = performance.now();
+            debugger;
+            const end = performance.now();
+            const debuggerDelay = (end - start) > 120;
+
+            const opened = widthTriggered || heightTriggered || debuggerDelay;
+
+            if (opened && !devtoolsOpen) {
+                devtoolsOpen = true;
+                showOverlay("系統偵測到開發者工具");
+            } else if (!opened && devtoolsOpen) {
+                devtoolsOpen = false;
+
+                // 如果不是 blur 模式，才關閉黑屏
+                if (antiOverlay.dataset.blurMode !== "1") {
+                    hideOverlay();
+                }
+            }
+        }
+
+        setInterval(detectDevtools, 800);
+    })();
+</script>
 </body>
 </html>
