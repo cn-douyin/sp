@@ -223,7 +223,7 @@
             <input type="number" id="diamondInput" placeholder="請輸入數量" step="1000" oninput="calculate()">
             <div class="hint">
                 <span id="minReqText">最低起充：3,000 鑽</span>
-                <span id="rateText">比值：495 TWD / 1k</span>
+                <span id="rateText">比值：500 TWD / 1k</span>
             </div>
             <div class="hint error-msg" id="errorMsg">低於起充門檻</div>
             <div class="hint error-msg" id="unitErrorMsg">數量需為 1000 的倍數</div>
@@ -238,7 +238,7 @@
 
         <div class="footer">
             網頁將隨時保持更新 <br> 所有充值金額皆以網頁試算結果為準！ <br> 
- <br> 版本：2026 / 07 / 09
+ <br> 版本：2026 / 07 / 13
         </div>
     </div>
 
@@ -246,10 +246,10 @@
     /* ===== 設定變數 ===== */
     let currentMode = 'promo';
 
-    const promoRate = 495 / 1000;
+    const promoRate = 500 / 1000;
     const promoMin = 3000;
 
-    const normalRate = 505 / 1000;
+    const normalRate = 510 / 1000;
     const normalMin = 10000;
 
     const diamondInput = document.getElementById('diamondInput');
@@ -270,11 +270,11 @@
         if (mode === 'promo') {
             buttons[0].classList.add('active');
             minReqText.innerText = `最低起充：${promoMin.toLocaleString()} 鑽`;
-            rateText.innerText = `比值：495 TWD / 1k`;
+            rateText.innerText = `比值：500 TWD / 1k`;
         } else {
             buttons[1].classList.add('active');
             minReqText.innerText = `最低起充：${normalMin.toLocaleString()} 鑽`;
-            rateText.innerText = `比值：505 TWD / 1k`;
+            rateText.innerText = `比值：510 TWD / 1k`;
         }
 
         calculate();
